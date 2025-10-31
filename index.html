@@ -22,8 +22,9 @@
         .mode-btn {
             transition: all 0.2s ease-in-out;
         }
+        /* モード選択時を緑に変更 */
         .mode-active {
-            background-color: #3b82f6;
+            background-color: #22c55e; /* Tailwindのgreen-500 */
             color: white;
             transform: scale(1.02);
         }
@@ -33,7 +34,6 @@
             -moz-user-select: none;
             -ms-user-select: none;
         }
-        /* 追加: ゲーム中の文字サイズ調整 */
         .text-small {
             font-size: 4rem;
         }
@@ -58,7 +58,8 @@
                 <button id="randomBtn" data-mode="random" class="mode-btn w-full p-5 rounded-lg text-xl font-semibold bg-green-200 text-gray-800 hover:bg-green-300">ランダム</button>
             </div>
 
-            <button id="startBtn" class="w-full max-w-md mx-auto p-5 mt-10 rounded-lg text-xl font-semibold bg-green-500 text-white hover:bg-green-600 disabled:bg-green-200 disabled:opacity-50 disabled:cursor-not-allowed transition" disabled>
+            <!-- スタートボタンを青に変更 -->
+            <button id="startBtn" class="w-full max-w-md mx-auto p-5 mt-10 rounded-lg text-xl font-semibold bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-200 disabled:opacity-50 disabled:cursor-not-allowed transition" disabled>
                 スタート
             </button>
         </div>
@@ -116,21 +117,21 @@
                 }
                 modeDisplay.textContent = '';
 
-                // モード名を小さく表示
+                // モード名を小さく表示（1秒ごとに切り替え）
                 jankenDisplay.classList.remove('text-hand');
                 jankenDisplay.classList.add('text-small');
                 jankenDisplay.textContent = displayMode;
-                await new Promise(r => setTimeout(r, 2000));
+                await new Promise(r => setTimeout(r, 1000));
                 if (!isGameRunning) return;
 
-                // 「じゃん」表示（小）
+                // 「じゃん」
                 jankenDisplay.textContent = 'じゃん';
-                await new Promise(r => setTimeout(r, 2000));
+                await new Promise(r => setTimeout(r, 1000));
                 if (!isGameRunning) return;
 
-                // 「けん」表示（小）
+                // 「けん」
                 jankenDisplay.textContent = 'けん';
-                await new Promise(r => setTimeout(r, 2000));
+                await new Promise(r => setTimeout(r, 1000));
                 if (!isGameRunning) return;
 
                 // 手を表示（大）
@@ -138,7 +139,7 @@
                 jankenDisplay.classList.remove('text-small');
                 jankenDisplay.classList.add('text-hand');
                 jankenDisplay.textContent = `${HANDS[computerHandIndex]}`;
-                await new Promise(r => setTimeout(r, 2000));
+                await new Promise(r => setTimeout(r, 1000));
                 if (!isGameRunning) return;
 
                 isGameRunning = false;
