@@ -3,312 +3,191 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>後出しじゃんけんトレーニング</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>あとだしじゃんけん</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* CSS: style.css の内容 */
         body {
-            font-family: 'Arial', sans-serif;
-            text-align: center;
-            margin: 0;
-            padding: 20px;
-            background-color: #f4f4f9;
+            font-family: 'Inter', sans-serif;
+            overscroll-behavior: none;
         }
-
-        /* 初期設定画面 */
-        #setupScreen {
+        .app-container {
+            width: 100vw;
+            height: 100vh;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 80vh;
+            padding: 4vh 6vw;
         }
-
-        #setupScreen h1 {
-            margin-bottom: 40px;
-            color: #333;
+        .mode-btn {
+            transition: all 0.2s ease-in-out;
         }
-
-        .mode-selection button {
-            display: block;
-            width: 200px;
-            padding: 15px;
-            margin: 10px auto;
-            font-size: 18px;
-            cursor: pointer;
-            border: 2px solid #ccc;
-            border-radius: 8px;
-            background-color: #fff;
-            transition: background-color 0.2s, border-color 0.2s;
-        }
-
-        .mode-selection button.selected {
-            background-color: #ffeb3b;
-            border-color: #fdd835;
-            font-weight: bold;
-        }
-
-        #startBtn {
-            margin-top: 30px;
-            padding: 15px 50px;
-            font-size: 20px;
-            background-color: #00bcd4;
+        .mode-active {
+            background-color: #3b82f6;
             color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            opacity: 0.5; /* 初期は無効なため薄く */
-            transition: opacity 0.2s;
+            transform: scale(1.02);
         }
-
-        #startBtn:enabled {
-            opacity: 1;
-            background-color: #0097a7;
+        .noselect {
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
         }
-
-        /* ゲーム画面 */
-        #gameScreen {
-            display: none; /* 初期は非表示 */
-            position: relative;
-            min-height: 80vh;
-            padding-top: 20px;
+        /* 追加: ゲーム中の文字サイズ調整 */
+        .text-small {
+            font-size: 4rem;
         }
-
-        #modeDisplay {
-            font-size: 30px;
-            font-weight: bold;
-            color: #e91e63;
-            margin-bottom: 30px;
-        }
-
-        #jankenDisplay {
-            min-height: 200px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            font-size: 80px; /* じゃんけんの文字・手の表示用 */
-            margin: 30px 0;
-        }
-        
-        #targetHandDisplay {
-            font-size: 60px;
-            color: #4CAF50; /* 目標の手は緑色など目立つ色に */
-            margin-top: 20px;
-            min-height: 80px;
-        }
-        
-        /* 相手の手とモード表示のコンテナ */
-        .hand-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        
-        .hand-container span {
-            font-size: 80px;
-            margin-bottom: 10px;
-        }
-        
-        .hand-container small {
-            font-size: 30px;
-            font-weight: bold;
-            color: #e91e63;
-        }
-
-        #nextStepBtn {
-            position: absolute;
-            bottom: 50px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 50px;
-            cursor: pointer;
-            background: none;
-            border: none;
-            color: #2196f3;
-        }
-        
-        #backBtn {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            font-size: 14px;
-            color: #666;
-            cursor: pointer;
-            text-decoration: none;
+        .text-hand {
+            font-size: 13rem;
         }
     </style>
 </head>
-<body>
+<body class="bg-stone-100 flex items-center justify-center h-screen overflow-hidden">
 
-    <div id="setupScreen">
-        <h1>後出しじゃんけん</h1>
-        <div class="mode-selection">
-            <button id="winBtn">かってね</button>
-            <button id="loseBtn">まけてね</button>
-            <button id="drawBtn">おなじの</button>
-            <button id="randomBtn">ランダム</button>
+    <div class="app-container bg-white rounded-lg shadow-xl">
+
+        <!-- 初期設定画面 -->
+        <div id="setupScreen" class="flex flex-col h-full text-center">
+            <h1 class="text-4xl lg:text-5xl font-bold mb-6 text-gray-800">あとだしじゃんけん</h1>
+            <p class="text-gray-600 mb-8 text-lg lg:text-xl">モードをえらんでね</p>
+
+            <div class="flex flex-col space-y-4 flex-grow justify-center max-w-md mx-auto w-full">
+                <button id="winBtn" data-mode="win" class="mode-btn w-full p-5 rounded-lg text-xl font-semibold bg-green-200 text-gray-800 hover:bg-green-300">かってね</button>
+                <button id="loseBtn" data-mode="lose" class="mode-btn w-full p-5 rounded-lg text-xl font-semibold bg-green-200 text-gray-800 hover:bg-green-300">まけてね</button>
+                <button id="drawBtn" data-mode="draw" class="mode-btn w-full p-5 rounded-lg text-xl font-semibold bg-green-200 text-gray-800 hover:bg-green-300">おなじの</button>
+                <button id="randomBtn" data-mode="random" class="mode-btn w-full p-5 rounded-lg text-xl font-semibold bg-green-200 text-gray-800 hover:bg-green-300">ランダム</button>
+            </div>
+
+            <button id="startBtn" class="w-full max-w-md mx-auto p-5 mt-10 rounded-lg text-xl font-semibold bg-green-500 text-white hover:bg-green-600 disabled:bg-green-200 disabled:opacity-50 disabled:cursor-not-allowed transition" disabled>
+                スタート
+            </button>
         </div>
-        <button id="startBtn" disabled>スタート</button>
-    </div>
 
-    <div id="gameScreen">
-        <a href="#" id="backBtn">もどる</a>
-        <div id="modeDisplay"></div>
-        <div id="jankenDisplay"></div>
-        <div id="targetHandDisplay"></div>
-        <button id="nextStepBtn">▶</button>
+        <!-- ゲーム画面 -->
+        <div id="gameScreen" class="hidden flex-col h-full text-center relative">
+            <a href="#" id="backBtn" class="absolute bottom-4 left-4 text-gray-500 hover:underline text-lg z-10">もどる</a>
+            <div id="modeDisplay" class="text-4xl font-bold text-blue-600 h-12 mb-8"></div>
+            <div class="flex-grow flex flex-col items-center justify-center noselect">
+                <div id="jankenDisplay" class="text-hand font-bold my-4 h-52 flex items-center justify-center text-indigo-800"></div>
+            </div>
+            <button id="nextStepBtn" class="bg-transparent text-green-500 text-4xl font-bold hover:text-green-600 disabled:text-gray-300 transition mx-auto mt-6">▶</button>
+        </div>
+
     </div>
 
     <script>
-        // JavaScript: script.js の内容
-        const HANDS = ['グー', 'チョキ', 'パー']; // 0: グー, 1: チョキ, 2: パー
-        const HAND_EMOJIS = ['✊', '✌️', '✋']; // 絵文字で表現
-        const MODE_TEXT = {
-            'win': 'かってね',
-            'lose': 'まけてね',
-            'draw': 'おなじの',
-            'random': 'ランダム'
-        };
+        document.addEventListener('DOMContentLoaded', () => {
+            const HANDS = ['✊', '✌️', '✋'];
+            const MODES = { win: 'かってね', lose: 'まけてね', draw: 'おなじの' };
+            const MODE_KEYS = Object.keys(MODES);
 
-        let currentMode = null; // 選択されたモード ('win', 'lose', 'draw', 'random')
-        let gameState = 0; // 0:初期状態, 1:じゃん, 2:けん, 3:ポン(結果表示)
-        let timer = null;
+            let currentMode = null;
+            let displayMode = null;
+            let computerHandIndex = null;
+            let isGameRunning = false;
 
-        // HTML要素の取得
-        const setupScreen = document.getElementById('setupScreen');
-        const gameScreen = document.getElementById('gameScreen');
-        const modeButtons = document.querySelectorAll('.mode-selection button');
-        const startBtn = document.getElementById('startBtn');
-        const backBtn = document.getElementById('backBtn');
-        const modeDisplay = document.getElementById('modeDisplay');
-        const jankenDisplay = document.getElementById('jankenDisplay');
-        const targetHandDisplay = document.getElementById('targetHandDisplay');
-        const nextStepBtn = document.getElementById('nextStepBtn');
+            const setupScreen = document.getElementById('setupScreen');
+            const gameScreen = document.getElementById('gameScreen');
+            const modeButtons = document.querySelectorAll('.mode-btn');
+            const startBtn = document.getElementById('startBtn');
+            const modeDisplay = document.getElementById('modeDisplay');
+            const jankenDisplay = document.getElementById('jankenDisplay');
+            const nextStepBtn = document.getElementById('nextStepBtn');
+            const backBtn = document.getElementById('backBtn');
 
-        // --- 画面遷移の関数 ---
-        function showSetupScreen() {
-            setupScreen.style.display = 'flex';
-            gameScreen.style.display = 'none';
-            // ゲーム状態をリセット
-            gameState = 0;
-            currentMode = null;
-            startBtn.disabled = true;
-            startBtn.classList.remove('selected');
-            modeButtons.forEach(btn => btn.classList.remove('selected'));
-        }
-
-        function showGameScreen() {
-            setupScreen.style.display = 'none';
-            gameScreen.style.display = 'block';
-            modeDisplay.textContent = MODE_TEXT[currentMode];
-            jankenDisplay.innerHTML = 'スタートボタンを押しました！<br>▶を押して開始';
-            targetHandDisplay.textContent = '';
-            gameState = 0;
-        }
-
-        // --- じゃんけんのロジック ---
-
-        /**
-         * 相手の手(C)に対して、指定モード(M)で出すべき目標の手(T)を計算する
-         * T = (C + offset) mod 3
-         * @param {number} C 相手の手のインデックス (0:グー, 1:チョキ, 2:パー)
-         * @param {string} mode 'win', 'lose', 'draw'
-         * @returns {number} 目標の手のインデックス
-         */
-        function calculateTargetHand(C, mode) {
-            let offset;
-            if (mode === 'win') {
-                offset = 1; // 勝つ: C+1 mod 3
-            } else if (mode === 'lose') {
-                offset = 2; // 負ける: C+2 mod 3 (または C-1 mod 3)
-            } else if (mode === 'draw') {
-                offset = 0; // あいこ: C mod 3
+            function resetGameDisplay() {
+                modeDisplay.textContent = '';
+                jankenDisplay.textContent = '';
+                computerHandIndex = null;
+                nextStepBtn.disabled = false;
+                isGameRunning = false;
             }
-            // JavaScriptの % は負の数に対応しないため、(C + offset) + 3 を足して必ず正にする
-            return ((C + offset) % 3);
-        }
 
-        // --- イベントハンドラ ---
+            async function runFullGameSequence() {
+                isGameRunning = true;
+                nextStepBtn.disabled = true;
+                jankenDisplay.textContent = '';
 
-        // モード選択
-        modeButtons.forEach(btn => {
-            btn.addEventListener('click', () => {
-                modeButtons.forEach(b => b.classList.remove('selected'));
-                btn.classList.add('selected');
-                // IDからモード名を抽出 ('winBtn' -> 'win')
-                currentMode = btn.id.replace('Btn', '');
-                startBtn.disabled = false;
+                if (currentMode === 'random') {
+                    const randomKey = MODE_KEYS[Math.floor(Math.random() * MODE_KEYS.length)];
+                    displayMode = MODES[randomKey];
+                } else {
+                    displayMode = MODES[currentMode];
+                }
+                modeDisplay.textContent = '';
+
+                // モード名を小さく表示
+                jankenDisplay.classList.remove('text-hand');
+                jankenDisplay.classList.add('text-small');
+                jankenDisplay.textContent = displayMode;
+                await new Promise(r => setTimeout(r, 2000));
+                if (!isGameRunning) return;
+
+                // 「じゃん」表示（小）
+                jankenDisplay.textContent = 'じゃん';
+                await new Promise(r => setTimeout(r, 2000));
+                if (!isGameRunning) return;
+
+                // 「けん」表示（小）
+                jankenDisplay.textContent = 'けん';
+                await new Promise(r => setTimeout(r, 2000));
+                if (!isGameRunning) return;
+
+                // 手を表示（大）
+                computerHandIndex = Math.floor(Math.random() * HANDS.length);
+                jankenDisplay.classList.remove('text-small');
+                jankenDisplay.classList.add('text-hand');
+                jankenDisplay.textContent = `${HANDS[computerHandIndex]}`;
+                await new Promise(r => setTimeout(r, 2000));
+                if (!isGameRunning) return;
+
+                isGameRunning = false;
+                nextStepBtn.disabled = false;
+            }
+
+            modeButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    currentMode = button.dataset.mode;
+                    modeButtons.forEach(btn => {
+                        btn.classList.remove('mode-active');
+                        btn.classList.add('bg-green-200', 'text-gray-800');
+                    });
+                    button.classList.add('mode-active');
+                    button.classList.remove('bg-green-200', 'text-gray-800');
+                    startBtn.disabled = false;
+                });
+            });
+
+            startBtn.addEventListener('click', () => {
+                if (currentMode) {
+                    setupScreen.classList.add('hidden');
+                    gameScreen.classList.remove('hidden');
+                    gameScreen.classList.add('flex');
+                    runFullGameSequence();
+                }
+            });
+
+            nextStepBtn.addEventListener('click', () => {
+                if (!nextStepBtn.disabled) {
+                    runFullGameSequence();
+                }
+            });
+
+            backBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                isGameRunning = false;
+                gameScreen.classList.add('hidden');
+                gameScreen.classList.remove('flex');
+                setupScreen.classList.remove('hidden');
+                currentMode = null;
+                startBtn.disabled = true;
+                modeButtons.forEach(btn => {
+                    btn.classList.remove('mode-active');
+                    btn.classList.add('bg-green-200', 'text-gray-800');
+                });
+                resetGameDisplay();
             });
         });
-
-        // スタートボタン
-        startBtn.addEventListener('click', showGameScreen);
-
-        // 戻るボタン
-        backBtn.addEventListener('click', (e) => {
-            e.preventDefault(); // リンクとしての動作をキャンセル
-            if (timer) clearTimeout(timer); // 進行中のタイマーをクリア
-            showSetupScreen();
-        });
-
-        // 次へボタン (▶) のクリック処理
-        nextStepBtn.addEventListener('click', () => {
-            // タイマーが動いていたら無視
-            if (timer) return; 
-
-            // ランダムモードの場合は、じゃんけん開始前にモードを決定する
-            let actualMode = currentMode;
-            if (currentMode === 'random') {
-                const modes = ['win', 'lose', 'draw'];
-                const randomIndex = Math.floor(Math.random() * modes.length);
-                actualMode = modes[randomIndex];
-            }
-
-            // 画面をクリア
-            jankenDisplay.innerHTML = '';
-            targetHandDisplay.textContent = '';
-
-            // フェーズ 0: 「じゃん」
-            gameState = 1;
-            modeDisplay.textContent = MODE_TEXT[currentMode]; // 画面上部のモード表示は選択したモードのまま
-
-            // 進行
-            jankenDisplay.textContent = 'じゃん';
-            timer = setTimeout(() => {
-                // フェーズ 1: 「けん」
-                gameState = 2;
-                jankenDisplay.textContent = 'けん';
-                timer = setTimeout(() => {
-                    // フェーズ 2: 「ポン」（結果表示）
-                    gameState = 3;
-                    
-                    // 相手の手を決定
-                    const computerHandIndex = Math.floor(Math.random() * 3);
-                    const computerHandEmoji = HAND_EMOJIS[computerHandIndex];
-                    
-                    // 目標の手を計算
-                    const targetHandIndex = calculateTargetHand(computerHandIndex, actualMode);
-                    const targetHandEmoji = HAND_EMOJIS[targetHandIndex];
-
-                    // 相手の手とモード表示
-                    jankenDisplay.innerHTML = `
-                        <div class="hand-container">
-                            <span>${computerHandEmoji}</span>
-                            <small>${MODE_TEXT[actualMode]}</small>
-                        </div>
-                    `;
-                    
-                    // ユーザーの目標の手の表示
-                    targetHandDisplay.textContent = `あなたが 出すべき手: ${targetHandEmoji}`;
-
-                    // タイマーをクリア
-                    timer = null;
-                }, 2000); // 2秒後
-            }, 2000); // 2秒後
-        });
-
-        // 初期表示
-        showSetupScreen();
     </script>
 </body>
 </html>
